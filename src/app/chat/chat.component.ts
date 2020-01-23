@@ -1,59 +1,13 @@
 import { Component } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-
-
-interface Item{
-	suggested_places:any;
-	date_started: string;
-	chosen_place: string;
-	date_delivered: string;
-	participants: any;
-}
+import { ActivatedRoute } from '@angular/router';
+import { Item, TableData } from '../Item';
 
 @Component({
-   selector: 'app-root',
-  template: `
-  <h1>Статистика для чата: {{ this.chatName }}</h1>
-  <h2>Любимое место: {{ this.lovelyPlace }} </h2>
-  <h2>Любимое блюдо: {{ this.lovelyFood }} </h2>
-  <table >
-  <colgroup>
-    <col span="2" style="background:Khaki"><!-- С помощью этой конструкции задаем цвет фона для первых двух столбцов таблицы-->
-    <col span="2" style="background-color:LightCyan"><!-- Задаем цвет фона для следующего (одного) столбца таблицы-->
-  </colgroup>
-        <thead>
-            <tr>
-                <th>Место</th>
-                <th>Сумма, руб</th>
-                <th>Оформлен</th>
-                <th>Доставлен</th>
-                <th>Состав заказа</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of items | async">
-                <td style="padding: 10px">
-                Выбран<br> <b>{{item.chosen_place}}</b> из 
-                <span *ngFor="let place of item.suggested_places  ">{{place}};<br></span>
-                </td>
-                <td style="padding: 10px">{{item.sum / 100}}</td>
-                <td style="padding: 10px">{{item.date_started}}</td>
-                <td style="padding: 10px">{{item.date_delivered}}</td>
-                <td style="padding: 10px">
-					    <span *ngFor="let person of toArray(item.participants) ">
-					      <b>{{ person.fullname }}:</b> 
-					      <span *ngFor="let dish of person.dishes  ">
-					      	{{dish}}; 
-					      </span><br>
-					    </span>
-                </td>
-
-            </tr>
-        </tbody>
-    </table>
-
-  `
+  selector: 'table-basic-example',
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.css']
 })
 
 export class ChatComponent {
@@ -69,14 +23,38 @@ export class ChatComponent {
   lovelyPlace: any;
   lovelyFood: any;
   chatName: string;
+  chatId: any; /* -367932167, -367932167 */
 
-  constructor(private afs: AngularFirestore) {
-    this.chatName = 'Food_order';
-    this.itemsCollection = afs.collection<Item>('stats', ref => ref.where('chat_name','==', this.chatName));
+  chatItems: TableData[] = []; 
+  displayedColumns: string[] = ['order', 'place', 'cost', 'created', 'delivered', 'items'];
+
+  constructor(private afs: AngularFirestore, private route: ActivatedRoute) {
+    this.chatId = parseInt(route.snapshot.params['id']);
+    this.itemsCollection = afs.collection<Item>('stats', ref => ref.where('chat_id','==', this.chatId));
     this.items = this.itemsCollection.valueChanges();
-    this.items.subscribe(data => { 
-      this.lovelyPlace = this.most(Object.values(data).map(x => x.chosen_place)); 
-      this.lovelyFood = this.most(Object.values(data).map(x => x.participants).flat().map(x => x.dishes).flat())
+    this.items.subscribe((data:Item[]) => { 
+      console.log(data);
+      this.chatName = data[0].chat_name;
+      this.lovelyPlace = this.most(data.map(x => x.chosen_place)); 
+      this.lovelyFood = this.most(this.flatten(data.map(x => x.participants)).map(x => x.dishes).flat());
+
+      let orders = [];
+      data.forEach(el => {
+        let places = el.suggested_places.filter(x => x != el.chosen_place.toString());
+        console.log(el.participants.map(x => `${ x.fullname }: ${x.dishes.join()}` + "</b>").join("\n"))
+        orders.push({ 
+          order: data.indexOf(el), 
+          place: el.chosen_place.toString() + (
+            places.length ? " (" +  places.join() + ")" : ""
+          ), 
+          cost: el.sum/100, 
+          created: el.date_started,
+          delivered: el.date_delivered,
+          items: el.participants.map(x => `<b>${ x.fullname }</b>: ${x.dishes.join()}`).join("</br>") 
+        });
+      });
+      console.log(orders)
+      this.chatItems = orders;
     });
   }
 
@@ -100,10 +78,17 @@ export class ChatComponent {
                 max= count;
             }
             else if(count== max) {
-		                freq.push(tem);
-	          }
+                        freq.push(tem);
+              }
         }
     }
     return freq;
+  }
+
+  flatten (array) {
+    if (Array.isArray(array)) {
+        return Array.prototype.concat(...array.map(this.flatten, this));
+    }
+    return array;
   }
 }

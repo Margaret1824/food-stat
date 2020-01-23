@@ -1,14 +1,8 @@
 import { Component} from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-
-export interface UserData {
-  order: number;
-  place: string;
-  cost: number;
-  created: string;
-  delivered: string;
-  items: any;
-}
+import { Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { Item, TableData } from '../Item';
 
 @Component({
   selector: 'table-basic-example',
@@ -18,46 +12,51 @@ export interface UserData {
 
 export class UserComponent {
   userName: string;
-  lovelyFood: any;
-  lovelyPlace: any;
+  lovelyFood: string[];
+  lovelyPlace: string[];
+  userId: number; /*  */
   
   private itemsCollection: AngularFirestoreCollection<Item>;
   items: Observable<Item[]>;
+  filtered: Item[];
 
-  userItems: UserData[] = []; 
+  userItems: TableData[] = []; 
   displayedColumns: string[] = ['order', 'place', 'cost', 'created', 'delivered', 'items'];
 
   ngOnInit() {
-    this.items.subscribe(data => { 
-      this.lovelyFood = this.most(
-        data.map(x => x.participants).flat()
-        .filter(x => x.fullname == this.userName).flat()
-        .map(x => x.dishes).flat()
-      );
-        
-      this.items = data.filter(element => {
-        return element.participants.map(x => x.fullname).includes(this.userName)
+    this.items.subscribe((data:Item[]) => {   
+      this.filtered = data.filter(element => {
+        return element.participants.map(x => x.user_id).includes(this.userId)
       });
 
-      this.lovelyPlace = this.most(this.items.map(x => x.chosen_place));
+      this.lovelyFood = this.most(
+        this.flatten(this.filtered.map(x => x.participants.filter(x => x.user_id == this.userId)))
+            .map(x => x.dishes).flat()
+      );
+
+      console.log(this.items);
+
+      this.lovelyPlace = this.most(this.filtered.map(x => x.chosen_place));
+      this.userName = this.filtered[0].participants[0].fullname;
 
       let orders = [];
-      this.items.forEach(el => {
+      this.filtered.forEach(el => {
         orders.push({ 
-          order: this.items.indexOf(el), 
+          order: data.indexOf(el), 
           place: el.chosen_place, 
           cost: el.sum/100, 
           created: el.date_started,
           delivered: el.date_delivered,
-          items: el.participants.filter(x => x.fullname == this.userName).map(x => x.dishes).flat().join(", ") 
+          items: el.participants.filter(x => x.user_id == this.userId).map(x => x.dishes).join(", ") 
         });
       });
+      
       this.userItems = orders;
     });
   }
 
-  constructor(private afs: AngularFirestore) {
-    this.userName = 'Александр Попов';
+  constructor(private afs: AngularFirestore, private route: ActivatedRoute) {
+    this.userId = parseInt(route.snapshot.params['id']);
     this.itemsCollection = afs.collection<Item>('stats');
     this.items = this.itemsCollection.valueChanges();
   }
@@ -78,10 +77,17 @@ export class UserComponent {
                 max= count;
             }
             else if(count== max) {
-		                freq.push(tem);
-	          }
+                        freq.push(tem);
+              }
         }
     }
     return freq;
+  }
+
+  flatten (array) {
+    if (Array.isArray(array)) {
+        return Array.prototype.concat(...array.map(this.flatten, this));
+    }
+    return array;
   }
 }
