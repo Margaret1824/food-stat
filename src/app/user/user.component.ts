@@ -12,8 +12,8 @@ import { Item, TableData } from '../Item';
 
 export class UserComponent {
   userName: string;
-  lovelyFood: string[];
-  lovelyPlace: string[];
+  lovelyFood: string;
+  lovelyPlace: string;
   userId: number; /*  */
   
   private itemsCollection: AngularFirestoreCollection<Item>;
