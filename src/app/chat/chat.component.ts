@@ -33,24 +33,21 @@ export class ChatComponent {
     this.itemsCollection = afs.collection<Item>('stats', ref => ref.where('chat_id','==', this.chatId));
     this.items = this.itemsCollection.valueChanges();
     this.items.subscribe((data:Item[]) => { 
-      console.log(data);
+      console.log(data.map(x => x.chosen_place));
       this.chatName = data[0].chat_name;
-      this.lovelyPlace = this.most(data.map(x => x.chosen_place)); 
-      this.lovelyFood = this.most(this.flatten(data.map(x => x.participants)).map(x => x.dishes).flat());
+      this.lovelyPlace = this.most(this.flatten(data.map(x => x.chosen_place))).join(", "); 
+      this.lovelyFood = this.most(this.flatten(data.map(x => x.participants)).map(x => x.dishes).flat()).join(", ");
 
       let orders = [];
       data.forEach(el => {
         let places = el.suggested_places.filter(x => x != el.chosen_place.toString());
-        console.log(el.participants.map(x => `${ x.fullname }: ${x.dishes.join()}` + "</b>").join("\n"))
         orders.push({ 
           order: data.indexOf(el), 
-          place: el.chosen_place.toString() + (
-            places.length ? " (" +  places.join() + ")" : ""
-          ), 
+          place: `<b>${el.chosen_place}</b>` + (places && places.length ? ", " + places.join() : ""), 
           cost: el.sum/100, 
           created: el.date_started,
           delivered: el.date_delivered,
-          items: el.participants.map(x => `<b>${ x.fullname }</b>: ${x.dishes.join()}`).join("</br>") 
+          items: el.participants.map(x => `<b>${ x.fullname }</b>: ${x.dishes.join()}`).join("</br>")
         });
       });
       console.log(orders)

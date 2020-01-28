@@ -13,6 +13,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTableModule, MatCardModule } from '@angular/material';
 import { MatButtonToggleModule } from '@angular/material/button-toggle'; 
 import { MatSortModule } from '@angular/material/sort';
+import { EscapeHtmlPipe } from '../pipes/keep-html.pipe';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
   imports: [
@@ -22,9 +26,15 @@ import { MatSortModule } from '@angular/material/sort';
     AngularFireStorageModule, // imports firebase/storage only needed for storage features
     AppRoutingModule, 
     BrowserAnimationsModule, 
-    MatTableModule, MatCardModule, MatButtonToggleModule, MatSortModule
+    MatTableModule, 
+    MatCardModule, 
+    MatButtonToggleModule, 
+    MatSortModule, 
+    MatIconModule,
+    MatDividerModule,
+    MatListModule
   ],
-  declarations: [ AppComponent, UserComponent, ChatComponent ],
+  declarations: [ AppComponent, UserComponent, ChatComponent, EscapeHtmlPipe ],
   bootstrap: [ AppComponent ]
 })
 

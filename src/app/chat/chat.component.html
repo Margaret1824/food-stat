@@ -1,10 +1,21 @@
 <mat-card>
     <mat-card-title>Статистика для чата: {{ this.chatName }}</mat-card-title> 
-    <br>
-    <mat-card-subtitle>Любимое место: {{ this.lovelyPlace }}</mat-card-subtitle>
-    <mat-card-subtitle>Любимое блюдо: {{ this.lovelyFood }}</mat-card-subtitle>
-  
     <mat-card-content>
+      <mat-list class='stat-hdr'>
+        <mat-list-item role="listitem">
+          <mat-icon aria-hidden="false">star_border</mat-icon>
+          <div class="md-list-item-text">
+            <h4>Любимое место: <span>{{ this.lovelyPlace }}</span></h4>
+          </div>
+        </mat-list-item>
+        <mat-list-item role="listitem">
+          <mat-icon aria-hidden="false">star_border</mat-icon>
+          <div class="md-list-item-text">
+            <h4>Любимое блюдо: <span>{{ this.lovelyFood }}</span></h4>
+          </div>
+        </mat-list-item>
+      </mat-list>
+
       <table mat-table [dataSource]="chatItems" matSort class="mat-elevation-z8">
   
         <!--- Note that these columns can be defined in any order.
@@ -12,38 +23,42 @@
       
         <!-- Order Column -->
         <ng-container matColumnDef="order">
-          <th mat-header-cell *matHeaderCellDef> Номер заказа </th>
-          <td mat-cell *matCellDef="let element"> {{element.order}} </td>
+          <th mat-header-cell *matHeaderCellDef class="num"> # </th>
+          <td mat-cell *matCellDef="let element" class="num"> {{ element.order }} </td>
         </ng-container>
       
         <!-- Place Column -->
         <ng-container matColumnDef="place">
           <th mat-header-cell *matHeaderCellDef> Место </th>
-          <td mat-cell *matCellDef="let element"> {{element.place}} </td>
+          <td mat-cell *matCellDef="let element"> 
+            <div [innerHTML]="element.place | keepHtml"> </div> 
+          </td>
         </ng-container>
       
         <!-- Cost Column -->
         <ng-container matColumnDef="cost">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Сумма </th>
-          <td mat-cell *matCellDef="let element"> {{element.cost}} </td>
+          <td mat-cell *matCellDef="let element"> {{ element.cost }} </td>
         </ng-container>
       
         <!-- Created date Column -->
         <ng-container matColumnDef="created">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Создан </th>
-          <td mat-cell *matCellDef="let element"> {{element.created}} </td>
+          <td mat-cell *matCellDef="let element"> {{ element.created | date : 'dd/MM/yy hh:mm' }} </td>
         </ng-container>
   
         <!-- Delivered date Column -->
         <ng-container matColumnDef="delivered">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Доставлен </th>
-          <td mat-cell *matCellDef="let element"> {{element.delivered}} </td>
+          <td mat-cell *matCellDef="let element"> {{ element.delivered | date : 'dd/MM/yy hh:mm' }} </td>
         </ng-container>
   
         <!-- Items Column -->
         <ng-container matColumnDef="items">
           <th mat-header-cell *matHeaderCellDef> Состав заказа </th>
-          <td mat-cell *matCellDef="let element">{{element.items}}</td>
+          <td mat-cell *matCellDef="let element">
+            <div [innerHTML]="element.items | keepHtml"></div>
+          </td>
         </ng-container>
       
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

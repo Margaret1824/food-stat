@@ -32,11 +32,11 @@ export class UserComponent {
       this.lovelyFood = this.most(
         this.flatten(this.filtered.map(x => x.participants.filter(x => x.user_id == this.userId)))
             .map(x => x.dishes).flat()
-      );
+      ).join(", ");
 
       console.log(this.items);
 
-      this.lovelyPlace = this.most(this.filtered.map(x => x.chosen_place));
+      this.lovelyPlace = this.most(this.filtered.map(x => x.chosen_place)).join(", ");
       this.userName = this.filtered[0].participants[0].fullname;
 
       let orders = [];

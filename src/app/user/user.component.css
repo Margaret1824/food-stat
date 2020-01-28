@@ -1,7 +1,27 @@
 table {
-    width: 100%;
-  }
+  width: 100%;
+}
 
-  mat-card{
-    height: 100%;
-  } 
+mat-card{
+  height: 110%;
+  background-color: #0f89d0;
+  color: white;
+} 
+
+mat-card h4{
+  color: white;
+  font-family: sans-serif;
+}
+
+mat-icon{
+  color: white;
+}
+
+mat-card {
+  padding-bottom: 50px !important;
+}
+
+.num{
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
