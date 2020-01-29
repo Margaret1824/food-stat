@@ -42,13 +42,13 @@
       <!-- Created date Column -->
       <ng-container matColumnDef="created">
         <th mat-header-cell *matHeaderCellDef> Создан </th>
-        <td mat-cell *matCellDef="let element"> {{element.created | date : 'dd/MM/yy hh:mm'}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.created | date : 'dd/MM/yy HH:mm'}} </td>
       </ng-container>
 
       <!-- Delivered date Column -->
       <ng-container matColumnDef="delivered">
         <th mat-header-cell *matHeaderCellDef> Доставлен </th>
-        <td mat-cell *matCellDef="let element"> {{element.delivered | date : 'dd/MM/yy hh:mm'}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.delivered | date : 'dd/MM/yy HH:mm'}} </td>
       </ng-container>
 
       <!-- Items Column -->

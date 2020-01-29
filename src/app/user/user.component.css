@@ -3,9 +3,10 @@ table {
 }
 
 mat-card{
-  height: 110%;
+  height: min-content;
   background-color: #0f89d0;
   color: white;
+  min-width: 470px !important;
 } 
 
 mat-card h4{
